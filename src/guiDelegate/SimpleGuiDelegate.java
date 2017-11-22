@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import model.SimpleModel;
+import model.Model;
 
 
 /**
@@ -49,14 +49,14 @@ public class SimpleGuiDelegate implements Observer {
     private JToolBar toolbar;
     private JTextField inputField;
     private JRadioButton button1;
-    private JButton button2, button3, button4, button5;
+    private JButton change_colour_butt, reset_butt, undo_butt, redo_butt;
     private JScrollPane outputPane;
     private JTextArea outputField;
     private JMenuBar menu;
     private Panel panel;
     private Setting setting;
 
-    private SimpleModel model;
+    private Model model;
 
 
     /**
@@ -64,7 +64,7 @@ public class SimpleGuiDelegate implements Observer {
      *
      * @param model the Model to observe, render, and update according to user events
      */
-    public SimpleGuiDelegate(SimpleModel model) {
+    public SimpleGuiDelegate(Model model) {
         this.model = model;
         this.mainFrame = new JFrame();  // set up the main frame for this GUI
         menu = new JMenuBar();
@@ -88,40 +88,30 @@ public class SimpleGuiDelegate implements Observer {
      * Listeners are created for the buttons and text field which translate user events to model object method calls (controller aspect of the delegate)
      */
     private void setupToolbar() {
-//		button1 = new JRadioButton("Change Colour");
-//		button1.addActionListener(new ActionListener(){     // to translate event for this button into appropriate model method call
-//			public void actionPerformed(ActionEvent e){
-//				// should  call method in model class if you want it to affect model
-//				JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 1 not linked to model!");
-//			}
-//		});
-        button2 = new JButton("Change Colour");
-        button2.addActionListener(new ActionListener() {
+        change_colour_butt = new JButton("Change Colour");
+        change_colour_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // should  call method in model class if you want it to affect model
                 JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 2 not linked to model!");
             }
         });
-        button3 = new JButton("Reset");
-        button3.addActionListener(new ActionListener() {
+        reset_butt = new JButton("Reset");
+        reset_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // should  call method in model class if you want it to affect model
-                JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 2 not linked to model!");
+                model.reset();
             }
         });
 
-        button4 = new JButton("Undo");
-        button4.addActionListener(new ActionListener() {
+        undo_butt = new JButton("Undo");
+        undo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // should  call method in model class if you want it to affect model
-                JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 2 not linked to model!");
+
             }
         });
-        button5 = new JButton("Redo");
-        button5.addActionListener(new ActionListener() {
+        redo_butt = new JButton("Redo");
+        redo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // should  call method in model class if you want it to affect model
-                JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 2 not linked to model!");
+
             }
         });
 
@@ -151,16 +141,16 @@ public class SimpleGuiDelegate implements Observer {
 
 
                 setting.setMaxIterations(Integer.parseInt(inputField.getText()));
-                model.updateModel(setting);
+                model.update(setting);
             }
         });
 
         // add buttons, label, and textfield to the toolbar
 //        toolbar.add(button1);
-        toolbar.add(button2);
-        toolbar.add(button3);
-        toolbar.add(button4);
-        toolbar.add(button5);
+        toolbar.add(change_colour_butt);
+        toolbar.add(reset_butt);
+        toolbar.add(undo_butt);
+        toolbar.add(redo_butt);
         toolbar.add(label);
         toolbar.add(inputField);
         toolbar.add(add_button);

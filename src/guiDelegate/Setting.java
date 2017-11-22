@@ -1,6 +1,6 @@
 package guiDelegate;
 
-import model.SimpleModel;
+import model.Model;
 
 public class Setting {
     private int xResolution;
@@ -12,7 +12,7 @@ public class Setting {
     private int maxIterations;
     private double radiusSquared;
 
-    Setting(SimpleModel model) {
+    Setting(Model model) {
         this.xResolution =  model.getXResolution();
         this.yResolution = model.getYResolution();
         this.minReal = model.getMinReal();

@@ -1,21 +1,21 @@
 package guiDelegate;
 
-import model.SimpleModel;
+import model.Model;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Panel extends JPanel {
-    SimpleModel model;
+    Model model;
 
-    public Panel(SimpleModel model) {
+    public Panel(Model model) {
         this.model = model;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        int[][] madelbrotData = model.getMadelbrotData();
+        int[][] madelbrotData = model.getMandelbrot_data();
         int maxIterations = model.getMaxIterations();
         for (int i = 0; i < madelbrotData.length; i++) {
             for (int j = 0; j < madelbrotData[i].length; j++) {
