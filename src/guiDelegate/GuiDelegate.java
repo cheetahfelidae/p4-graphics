@@ -1,10 +1,7 @@
 package guiDelegate;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -49,8 +46,9 @@ public class GuiDelegate implements Observer {
     private JMenuBar menu;
     private Panel panel;
     private Setting pre_setting, cur_setting, post_setting;
-
     private Model model;
+
+    private int x1, y1, x2, y2;
 
     /**
      * Instantiate a new GuiDelegate object
@@ -168,6 +166,7 @@ public class GuiDelegate implements Observer {
         file.add(load);
         file.add(save);
         menu.add(file);
+
         load.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // should call appropriate method in model class if you want it to do something useful
@@ -180,6 +179,7 @@ public class GuiDelegate implements Observer {
                 JOptionPane.showMessageDialog(mainFrame, "Ooops, Save not linked to model!");
             }
         });
+
         // add menu bar to frame
         mainFrame.setJMenuBar(menu);
     }
@@ -191,10 +191,72 @@ public class GuiDelegate implements Observer {
         setupMenu();
         setupToolbar();
 
+
         panel = new Panel(model);
         panel.setBackground(Color.WHITE);
-        mainFrame.add(panel, BorderLayout.CENTER);
 
+        panel.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                System.out.println("Pressed " + e.getX() + " / " + e.getY());
+                x1 = e.getX();
+                y1 = e.getY();
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                System.out.println("Release " + e.getX() + " / " + e.getY());
+
+                x2 = e.getX();
+                y2 = e.getY();
+
+                pre_setting = new Setting(cur_setting);
+
+//                double uLeftX = Math.min(x1, x2);
+//                double bRightX = Math.max(x1, x2);
+//                double uLeftY = Math.min(y1, y2);
+//                double bRightY = Math.max(y1, y2);
+
+                double uLeftX = x1;
+                double bRightX = x2;
+                double uLeftY = y1;
+                double bRightY = y2;
+
+                double xWidth = cur_setting.getMaxReal() - cur_setting.getMinReal();
+                double yHeight = cur_setting.getMaxImaginary() - cur_setting.getMinImaginary();
+
+                double minReal = cur_setting.getMinReal() + (uLeftX / cur_setting.getXResolution()) * xWidth;
+                double maxReal = cur_setting.getMaxReal() - ((uLeftX - bRightX) / cur_setting.getXResolution()) * xWidth;
+
+                double minImg = cur_setting.getMinImaginary() + ((uLeftY - bRightY) / cur_setting.getXResolution()) * yHeight;
+                double maxImg = cur_setting.getMaxImaginary() - (uLeftY / cur_setting.getXResolution()) * yHeight;
+
+                cur_setting.setMinReal(minReal);
+                cur_setting.setMaxReal(maxReal);
+                cur_setting.setMinImaginary(minImg);
+                cur_setting.setMaxImaginary(maxImg);
+
+                model.update(cur_setting);
+            }
+        });
+
+        mainFrame.add(panel, BorderLayout.CENTER);
         mainFrame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         mainFrame.setVisible(true);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

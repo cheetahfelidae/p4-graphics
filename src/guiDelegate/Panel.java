@@ -15,17 +15,17 @@ public class Panel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        int[][] madelbrotData = model.getMandelbrot_data();
-        int maxIterations = model.getMaxIterations();
-        for (int i = 0; i < madelbrotData.length; i++) {
-            for (int j = 0; j < madelbrotData[i].length; j++) {
-                if (madelbrotData[i][j] >= maxIterations) {
-                    g.setColor(new Color(0, 0, 0));
-                    g.drawLine(j, i, j, i);
+
+        int[][] madelbrot_data = model.getMandelbrot_data();
+
+        for (int i = 0; i < madelbrot_data.length; i++) {
+            for (int j = 0; j < madelbrot_data[i].length; j++) {
+                if (madelbrot_data[i][j] >= model.getMaxIterations()) {
+                    g.setColor(Color.BLACK);
                 } else {
-//                	g.setColor(new Color(255, 0, 0));
-//                	g.drawLine(j, i, j, i);
+                    g.setColor(Color.WHITE);
                 }
+                g.drawLine(j, i, j, i);
             }
         }
     }
