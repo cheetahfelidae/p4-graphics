@@ -1,4 +1,4 @@
-
+package model;
 
 /**
  * The MandelbrotCalculator class contains methods which establish the Mandelbrot set.
@@ -99,4 +99,3 @@ public class MandelbrotCalculator {
         return mandelbrotData;
     }
 }
-
