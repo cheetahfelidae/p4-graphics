@@ -13,7 +13,7 @@ public class Setting {
     private double radiusSquared;
 
     Setting(Model model) {
-        this.xResolution =  model.getXResolution();
+        this.xResolution = model.getXResolution();
         this.yResolution = model.getYResolution();
         this.minReal = model.getMinReal();
         this.maxReal = model.getMaxReal();
@@ -21,6 +21,22 @@ public class Setting {
         this.maxImaginary = model.getMaxImaginary();
         this.maxIterations = model.getMaxIterations();
         this.radiusSquared = model.getRadiusSquared();
+    }
+
+    /**
+     * Used to clone a class.
+     *
+     * @param setting
+     */
+    Setting(Setting setting) {
+        this.xResolution = setting.getXResolution();
+        this.yResolution = setting.getYResolution();
+        this.minReal = setting.getMinReal();
+        this.maxReal = setting.getMaxReal();
+        this.minImaginary = setting.getMinImaginary();
+        this.maxImaginary = setting.getMaxImaginary();
+        this.maxIterations = setting.getMaxIterations();
+        this.radiusSquared = setting.getRadiusSquared();
     }
 
     public void setXResolution(int xResolution) {

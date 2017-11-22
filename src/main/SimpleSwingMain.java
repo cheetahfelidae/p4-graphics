@@ -1,6 +1,6 @@
 package main;
 
-import guiDelegate.SimpleGuiDelegate;
+import guiDelegate.GuiDelegate;
 import model.Model;
 
 
@@ -13,6 +13,6 @@ public class SimpleSwingMain {
 
     public static void main(String[] args) {
         Model model = new Model();
-        SimpleGuiDelegate delegate = new SimpleGuiDelegate(model); // pass the model object to the delegate, so that it can observe, display, and change the model
+        GuiDelegate delegate = new GuiDelegate(model); // pass the model object to the delegate, so that it can observe, display, and change the model
     }
 }

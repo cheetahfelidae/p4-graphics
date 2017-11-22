@@ -15,8 +15,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -26,7 +24,7 @@ import model.Model;
 
 
 /**
- * The SimpleGuiDelegate class whose purpose is to render relevant state information stored in the model and make changes to the model state based on user events.
+ * The GuiDelegate class whose purpose is to render relevant state information stored in the model and make changes to the model state based on user events.
  * <p>
  * This class uses Swing to display the model state when the model changes. This is the view aspect of the delegate class.
  * It also listens for user input events (in the listeners defined below), translates these to appropriate calls to methods
@@ -34,10 +32,8 @@ import model.Model;
  * The class implements Observer in order to permit it to be added as an observer of the model class.
  * When the model calls notifyObservers() (after executing setChanged())
  * the update(...) method below is called in order to update the view of the model.
- *
- * @author jonl
  */
-public class SimpleGuiDelegate implements Observer {
+public class GuiDelegate implements Observer {
 
     private static final int FRAME_HEIGHT = 800;
     private static final int FRAME_WIDTH = 800;
@@ -48,23 +44,20 @@ public class SimpleGuiDelegate implements Observer {
 
     private JToolBar toolbar;
     private JTextField inputField;
-    private JRadioButton button1;
     private JButton change_colour_butt, reset_butt, undo_butt, redo_butt;
-    private JScrollPane outputPane;
     private JTextArea outputField;
     private JMenuBar menu;
     private Panel panel;
-    private Setting setting;
+    private Setting pre_setting, cur_setting, post_setting;
 
     private Model model;
 
-
     /**
-     * Instantiate a new SimpleGuiDelegate object
+     * Instantiate a new GuiDelegate object
      *
      * @param model the Model to observe, render, and update according to user events
      */
-    public SimpleGuiDelegate(Model model) {
+    public GuiDelegate(Model model) {
         this.model = model;
         this.mainFrame = new JFrame();  // set up the main frame for this GUI
         menu = new JMenuBar();
@@ -72,16 +65,13 @@ public class SimpleGuiDelegate implements Observer {
         inputField = new JTextField(TEXT_WIDTH);
         outputField = new JTextArea(TEXT_WIDTH, TEXT_HEIGHT);
         outputField.setEditable(false);
-//        outputPane = new JScrollPane(outputField);
         setupComponents();
-        setting = new Setting(model);
+        cur_setting = new Setting(model);
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
         model.addObserver(this);
-
     }
-
 
     /**
      * Initialises the toolbar to contain the buttons, label, input field, etc. and adds the toolbar to the main frame.
@@ -95,6 +85,7 @@ public class SimpleGuiDelegate implements Observer {
                 JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 2 not linked to model!");
             }
         });
+
         reset_butt = new JButton("Reset");
         reset_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -105,23 +96,43 @@ public class SimpleGuiDelegate implements Observer {
         undo_butt = new JButton("Undo");
         undo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+                if (pre_setting != null) {
+                    post_setting = new Setting(cur_setting);
+                    cur_setting = new Setting(pre_setting);
+                    model.update(cur_setting);
+                }
             }
         });
+
         redo_butt = new JButton("Redo");
         redo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+                if (post_setting != null) {
+                    pre_setting = new Setting(cur_setting);
+                    cur_setting = new Setting(post_setting);
+                    model.update(cur_setting);
+                }
             }
         });
 
         JLabel label = new JLabel("Current iteration: ");
 
+        JButton add_button = new JButton("Update");       // to translate event for this button into appropriate model method call
+        add_button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pre_setting = new Setting(cur_setting);
+
+                cur_setting.setMaxIterations(Integer.parseInt(inputField.getText()));
+                model.update(cur_setting);
+
+                inputField.setText("");                     // clear the input box in the GUI view
+            }
+        });
+
         inputField.addKeyListener(new KeyListener() {        // to translate key event for the text filed into appropriate model method call
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-//                    model.addText(inputField.getText());    // tell model to add text entered by user
-                    inputField.setText("");                 // clear the input box in the GUI view
+                    add_button.doClick();
                 }
             }
 
@@ -129,24 +140,10 @@ public class SimpleGuiDelegate implements Observer {
             }
 
             public void keyTyped(KeyEvent e) {
-
-            }
-        });
-
-        JButton add_button = new JButton("Update");       // to translate event for this button into appropriate model method call
-        add_button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-//                model.addText(inputField.getText());        // same as when user presses carriage return key, tell model to add text entered by user
-//                inputField.setText("");                     // and clear the input box in the GUI view
-
-
-                setting.setMaxIterations(Integer.parseInt(inputField.getText()));
-                model.update(setting);
             }
         });
 
         // add buttons, label, and textfield to the toolbar
-//        toolbar.add(button1);
         toolbar.add(change_colour_butt);
         toolbar.add(reset_butt);
         toolbar.add(undo_butt);
@@ -157,7 +154,6 @@ public class SimpleGuiDelegate implements Observer {
         // add toolbar to north of main frame
         mainFrame.add(toolbar, BorderLayout.NORTH);
     }
-
 
     /**
      * Sets up File menu with Load and Save entries
@@ -184,7 +180,7 @@ public class SimpleGuiDelegate implements Observer {
                 JOptionPane.showMessageDialog(mainFrame, "Ooops, Save not linked to model!");
             }
         });
-        // add menubar to frame
+        // add menu bar to frame
         mainFrame.setJMenuBar(menu);
     }
 
@@ -226,7 +222,6 @@ public class SimpleGuiDelegate implements Observer {
         // in the caller's thread
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-//                outputField.setText(model.getText());
                 panel.repaint();
             }
         });
