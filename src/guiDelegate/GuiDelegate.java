@@ -2,6 +2,7 @@ package guiDelegate;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Stack;
@@ -201,14 +202,49 @@ public class GuiDelegate implements Observer {
 
         load.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // should call appropriate method in model class if you want it to do something useful
-                JOptionPane.showMessageDialog(mainFrame, "Ooops, Load not linked to model!");
+                JFileChooser fc = new JFileChooser();
+                File workingDirectory = new File(System.getProperty("user.dir"));
+                fc.setCurrentDirectory(workingDirectory);
+                int returnVal = fc.showOpenDialog(fc);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    try {
+                        undoStack.push(new ModelSetting(model));// save new previous setting
+                        redoStack.clear();
+
+                        FileInputStream fi = new FileInputStream(file);
+                        ObjectInputStream oi = new ObjectInputStream(fi);
+
+                        model.update((ModelSetting) oi.readObject());
+
+                        oi.close();
+                        fi.close();
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
         save.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // should call appropriate method in model class if you want it to do something useful
-                JOptionPane.showMessageDialog(mainFrame, "Ooops, Save not linked to model!");
+                JFileChooser fc = new JFileChooser();
+                File workingDirectory = new File(System.getProperty("user.dir"));
+                fc.setCurrentDirectory(workingDirectory);
+                int returnVal = fc.showSaveDialog(fc);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    try {
+                        System.out.println("File is " + file.toString());
+                        FileOutputStream f = new FileOutputStream(file);
+                        ObjectOutputStream o = new ObjectOutputStream(f);
+                        o.writeObject(new ModelSetting(model));
+                        o.close();
+                        f.close();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
 

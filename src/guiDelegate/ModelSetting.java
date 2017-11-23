@@ -3,8 +3,9 @@ package guiDelegate;
 import model.Model;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class ModelSetting {
+public class ModelSetting implements Serializable {
     private int x_res;
     private int y_res;
     private double min_real;
@@ -25,23 +26,6 @@ public class ModelSetting {
         this.max_iterations = model.getMaxIterations();
         this.radius_squared = model.getRadiusSquared();
         this.colour = model.getColour();
-    }
-
-    /**
-     * Used to clone a class.
-     *
-     * @param modelSetting
-     */
-    ModelSetting(ModelSetting modelSetting) {
-        this.x_res = modelSetting.getXResolution();
-        this.y_res = modelSetting.getYResolution();
-        this.min_real = modelSetting.getMin_real();
-        this.max_real = modelSetting.getMax_real();
-        this.min_img = modelSetting.getMin_img();
-        this.max_img = modelSetting.getMax_img();
-        this.max_iterations = modelSetting.getMax_iterations();
-        this.radius_squared = modelSetting.getRadius_squared();
-        this.colour = modelSetting.getColour();
     }
 
     public void setXResolution(int xResolution) {

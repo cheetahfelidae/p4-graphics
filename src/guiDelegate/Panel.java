@@ -43,14 +43,16 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                 } else {
                     float value = (float) madelbrot_data[i][j] / model.getMaxIterations();
 
-                    if (model.getColour() == Color.RED) {
+                    if (model.getColour().equals(Color.RED)) {
                         g.setColor(new Color(value, 0, 0));
-                    } else if (model.getColour() == Color.GREEN) {
+                    } else if (model.getColour().equals(Color.GREEN)) {
                         g.setColor(new Color(0, value, 0));
-                    } else if (model.getColour() == Color.BLUE) {
+                    } else if (model.getColour().equals(Color.BLUE)) {
                         g.setColor(new Color(0, 0, value));
-                    } else {
+                    } else if (model.getColour().equals(Color.WHITE)) {
                         g.setColor(Color.WHITE);
+                    } else {
+                        g.setColor(model.getColour());
                     }
                 }
 
