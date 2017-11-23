@@ -2,11 +2,13 @@ package guiDelegate;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.*;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import model.Model;
 
 
@@ -35,7 +37,8 @@ public class GuiDelegate implements Observer {
     private JTextArea outputField;
     private JMenuBar menu;
     private Panel panel;
-    private ModelSetting pre_setting, cur_setting, post_setting;
+    private ArrayList<ModelSetting> settings;
+    private int index_cur_setting;
     private Model model;
 
     private int x1, y1, x2, y2;
@@ -48,13 +51,16 @@ public class GuiDelegate implements Observer {
     public GuiDelegate(Model model) {
         this.model = model;
         this.mainFrame = new JFrame();  // set up the main frame for this GUI
+
         menu = new JMenuBar();
         toolbar = new JToolBar();
         inputField = new JTextField(TEXT_WIDTH);
         outputField = new JTextArea(TEXT_WIDTH, TEXT_HEIGHT);
         outputField.setEditable(false);
         setupComponents();
-        cur_setting = new ModelSetting(model);
+        settings = new ArrayList<>();
+        settings.add(new ModelSetting(model));
+        index_cur_setting = 0;
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
@@ -66,38 +72,77 @@ public class GuiDelegate implements Observer {
      * Listeners are created for the buttons and text field which translate user events to model object method calls (controller aspect of the delegate)
      */
     private void setupToolbar() {
-        //Create the popup menu.
         JPopupMenu popup = new JPopupMenu();
         popup.add(new JMenuItem(new AbstractAction("Red") {
             public void actionPerformed(ActionEvent e) {
-                pre_setting = new ModelSetting(cur_setting);
+                ModelSetting setting = settings.get(index_cur_setting);
 
-                cur_setting.setColour(Color.RED);
-                model.update(cur_setting);
+                // delete post settings if exist before adding a previous model setting
+                if (index_cur_setting < settings.size() - 1) {
+                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+                        settings.remove(i);
+                    }
+                }
+
+                setting.setColour(Color.RED);
+                settings.add(new ModelSetting(setting)); // save it as a current model setting
+                index_cur_setting = settings.size() - 1;
+
+                model.update(setting);
             }
         }));
         popup.add(new JMenuItem(new AbstractAction("Green") {
             public void actionPerformed(ActionEvent e) {
-                pre_setting = new ModelSetting(cur_setting);
+                ModelSetting setting = settings.get(index_cur_setting);
 
-                cur_setting.setColour(Color.GREEN);
-                model.update(cur_setting);
+                // delete post settings if exist before adding a previous model setting
+                if (index_cur_setting < settings.size() - 1) {
+                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+                        settings.remove(i);
+                    }
+                }
+
+                setting.setColour(Color.GREEN);
+                settings.add(new ModelSetting(setting)); // save it as a current model setting
+                index_cur_setting = settings.size() - 1;
+
+                model.update(setting);
             }
         }));
         popup.add(new JMenuItem(new AbstractAction("Blue") {
             public void actionPerformed(ActionEvent e) {
-                pre_setting = new ModelSetting(cur_setting);
+                ModelSetting setting = settings.get(index_cur_setting);
 
-                cur_setting.setColour(Color.BLUE);
-                model.update(cur_setting);
+                // delete post settings if exist before adding a previous model setting
+                if (index_cur_setting < settings.size() - 1) {
+                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+                        settings.remove(i);
+                    }
+                }
+
+                setting.setColour(Color.BLUE);
+                settings.add(new ModelSetting(setting)); // save it as a current model setting
+                index_cur_setting = settings.size() - 1;
+
+                model.update(setting);
             }
         }));
         popup.add(new JMenuItem(new AbstractAction("White") {
             public void actionPerformed(ActionEvent e) {
-                pre_setting = new ModelSetting(cur_setting);
+                ModelSetting setting = settings.get(index_cur_setting);
 
-                cur_setting.setColour(Color.WHITE);
-                model.update(cur_setting);
+                // delete post settings if exist before adding a previous model setting
+                if (index_cur_setting < settings.size() - 1) {
+                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+                        settings.remove(i);
+                    }
+                }
+
+                setting.setColour(Color.WHITE);
+                settings.add(new ModelSetting(setting)); // save it as a current model setting
+                index_cur_setting = settings.size() - 1;
+
+                model.update(setting);
             }
         }));
 
@@ -118,22 +163,22 @@ public class GuiDelegate implements Observer {
         undo_butt = new JButton("Undo");
         undo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (pre_setting != null) {
-                    post_setting = new ModelSetting(cur_setting);
-                    cur_setting = new ModelSetting(pre_setting);
-                    model.update(cur_setting);
+                if (index_cur_setting > 0) {
+                    index_cur_setting--;
                 }
+
+                model.update(settings.get(index_cur_setting));
             }
         });
 
         redo_butt = new JButton("Redo");
         redo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (post_setting != null) {
-                    pre_setting = new ModelSetting(cur_setting);
-                    cur_setting = new ModelSetting(post_setting);
-                    model.update(cur_setting);
+                if (index_cur_setting < settings.size()) {
+                    index_cur_setting++;
                 }
+
+                model.update(settings.get(index_cur_setting));
             }
         });
 
@@ -142,10 +187,20 @@ public class GuiDelegate implements Observer {
         JButton add_button = new JButton("Update");       // to translate event for this button into appropriate model method call
         add_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                pre_setting = new ModelSetting(cur_setting);
+                ModelSetting setting = settings.get(index_cur_setting);
 
-                cur_setting.setMax_iterations(Integer.parseInt(inputField.getText()));
-                model.update(cur_setting);
+                // delete post settings if exist before adding a previous model setting
+                if (index_cur_setting < settings.size() - 1) {
+                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+                        settings.remove(i);
+                    }
+                }
+
+                setting.setMax_iterations(Integer.parseInt(inputField.getText()));
+                settings.add(new ModelSetting(setting)); // save it as a current model setting
+                index_cur_setting = settings.size() - 1;
+
+                model.update(setting);
 
                 inputField.setText("");                     // clear the input box in the GUI view
             }
@@ -259,27 +314,33 @@ public class GuiDelegate implements Observer {
                     y2 = temp;
                 }
 
-                pre_setting = new ModelSetting(cur_setting);
+                ModelSetting setting = settings.get(index_cur_setting);
 
-                double real_range = cur_setting.getMax_real() - cur_setting.getMin_real();
-                double img_range = cur_setting.getMax_img() - cur_setting.getMin_img();
+                // delete post settings if exist before adding a previous model setting
+                if (index_cur_setting < settings.size() - 1) {
+                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+                        settings.remove(i);
+                    }
+                }
 
-                double minReal = cur_setting.getMin_real() + ((double) x1 / cur_setting.getXResolution()) * real_range;
-                double minImg = cur_setting.getMin_img() + ((double) y1 / cur_setting.getYResolution()) * img_range;
+                double real_range = setting.getMax_real() - setting.getMin_real();
+                double img_range = setting.getMax_img() - setting.getMin_img();
 
-                double maxReal = cur_setting.getMax_real() - ((double) (cur_setting.getXResolution() - x2) / cur_setting.getXResolution()) * real_range;
-                double maxImg = cur_setting.getMax_img() - ((double) (cur_setting.getYResolution() - y2) / cur_setting.getYResolution()) * img_range;
+                setting.setMin_real(setting.getMin_real()
+                        + ((double) x1 / setting.getXResolution()) * real_range);
+                setting.setMin_img(setting.getMin_img()
+                        + ((double) y1 / setting.getYResolution()) * img_range);
 
-                System.out.println(minReal + " " + minImg);
-                System.out.println(maxReal + " " + maxImg);
+                setting.setMax_real(setting.getMax_real()
+                        - ((double) (setting.getXResolution() - x2) / setting.getXResolution()) * real_range);
+                setting.setMax_img(setting.getMax_img()
+                        - ((double) (setting.getYResolution() - y2) / setting.getYResolution()) * img_range);
 
-                cur_setting.setMin_real(minReal);
-                cur_setting.setMin_img(minImg);
 
-                cur_setting.setMax_real(maxReal);
-                cur_setting.setMax_img(maxImg);
+                settings.add(new ModelSetting(setting)); // save it as a current model setting
+                index_cur_setting = settings.size() - 1;
 
-                model.update(cur_setting);
+                model.update(setting);
             }
         });
 

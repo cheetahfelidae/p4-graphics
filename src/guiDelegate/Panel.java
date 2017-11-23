@@ -20,10 +20,13 @@ public class Panel extends JPanel {
 
         for (int i = 0; i < madelbrot_data.length; i++) {
             for (int j = 0; j < madelbrot_data[i].length; j++) {
+
                 if (madelbrot_data[i][j] >= model.getMax_iterations()) {
                     g.setColor(Color.BLACK);
+
                 } else {
                     float value = (float) madelbrot_data[i][j] / model.getMax_iterations();
+
                     if (model.getColour() == Color.RED) {
                         g.setColor(new Color(value, 0, 0));
                     } else if (model.getColour() == Color.GREEN) {
