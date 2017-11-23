@@ -6,58 +6,58 @@ import java.awt.*;
 import java.io.Serializable;
 
 public class ModelSetting implements Serializable {
-    private int x_res;
-    private int y_res;
-    private double min_real;
-    private double max_real;
-    private double min_img;
-    private double max_img;
-    private int max_iterations;
-    private double radius_squared;
+    private int xRes;
+    private int yRes;
+    private double minReal;
+    private double maxReal;
+    private double minImg;
+    private double maxImg;
+    private int maxIterations;
+    private double radiusSquared;
     private Color colour;
 
     ModelSetting(Model model) {
-        this.x_res = model.getXResolution();
-        this.y_res = model.getYResolution();
-        this.min_real = model.getMinReal();
-        this.max_real = model.getMaxReal();
-        this.min_img = model.getMinImg();
-        this.max_img = model.getMaxImg();
-        this.max_iterations = model.getMaxIterations();
-        this.radius_squared = model.getRadiusSquared();
+        this.xRes = model.getXResolution();
+        this.yRes = model.getYResolution();
+        this.minReal = model.getMinReal();
+        this.maxReal = model.getMaxReal();
+        this.minImg = model.getMinImg();
+        this.maxImg = model.getMaxImg();
+        this.maxIterations = model.getMaxIterations();
+        this.radiusSquared = model.getRadiusSquared();
         this.colour = model.getColour();
     }
 
     public void setXResolution(int xResolution) {
-        this.x_res = xResolution;
+        this.xRes = xResolution;
     }
 
     public void setYResolution(int yResolution) {
-        this.y_res = yResolution;
+        this.yRes = yResolution;
     }
 
-    public void setMin_real(double min_real) {
-        this.min_real = min_real;
+    public void setMinReal(double minReal) {
+        this.minReal = minReal;
     }
 
-    public void setMax_real(double max_real) {
-        this.max_real = max_real;
+    public void setMaxReal(double maxReal) {
+        this.maxReal = maxReal;
     }
 
-    public void setMin_img(double min_img) {
-        this.min_img = min_img;
+    public void setMinImg(double minImg) {
+        this.minImg = minImg;
     }
 
-    public void setMax_img(double max_img) {
-        this.max_img = max_img;
+    public void setMaxImg(double maxImg) {
+        this.maxImg = maxImg;
     }
 
-    public void setMax_iterations(int max_iterations) {
-        this.max_iterations = max_iterations;
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
     }
 
-    public void setRadius_squared(double radius_squared) {
-        this.radius_squared = radius_squared;
+    public void setRadiusSquared(double radiusSquared) {
+        this.radiusSquared = radiusSquared;
     }
 
     public void setColour(Color colour) {
@@ -65,35 +65,35 @@ public class ModelSetting implements Serializable {
     }
 
     public int getXResolution() {
-        return x_res;
+        return xRes;
     }
 
     public int getYResolution() {
-        return y_res;
+        return yRes;
     }
 
-    public double getMin_real() {
-        return min_real;
+    public double getMinReal() {
+        return minReal;
     }
 
-    public double getMax_real() {
-        return max_real;
+    public double getMaxReal() {
+        return maxReal;
     }
 
-    public double getMin_img() {
-        return min_img;
+    public double getMinImg() {
+        return minImg;
     }
 
-    public double getMax_img() {
-        return max_img;
+    public double getMaxImg() {
+        return maxImg;
     }
 
-    public int getMax_iterations() {
-        return max_iterations;
+    public int getMaxIterations() {
+        return maxIterations;
     }
 
-    public double getRadius_squared() {
-        return radius_squared;
+    public double getRadiusSquared() {
+        return radiusSquared;
     }
 
     public Color getColour() {

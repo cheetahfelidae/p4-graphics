@@ -12,14 +12,14 @@ import java.util.Stack;
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
     private Model model;
     private int x1, y1, x2, y2;
-    private boolean zoom;
+    private boolean doneZoom;
 
     private Stack<ModelSetting> undoStack;
     private Stack<ModelSetting> redoStack;
 
     public Panel(Model model) {
         this.model = model;
-        zoom = false;
+        doneZoom = false;
 
         undoStack = model.getUndoStack();
         redoStack = model.getRedoStack();
@@ -32,16 +32,16 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int[][] madelbrot_data = model.getMandelbrotData();
+        int[][] madelBrotData = model.getMandelbrotData();
 
-        for (int i = 0; i < madelbrot_data.length; i++) {
-            for (int j = 0; j < madelbrot_data[i].length; j++) {
+        for (int i = 0; i < madelBrotData.length; i++) {
+            for (int j = 0; j < madelBrotData[i].length; j++) {
 
-                if (madelbrot_data[i][j] >= model.getMaxIterations()) {
+                if (madelBrotData[i][j] >= model.getMaxIterations()) {
                     g.setColor(Color.BLACK);
 
                 } else {
-                    float value = (float) madelbrot_data[i][j] / model.getMaxIterations();
+                    float value = (float) madelBrotData[i][j] / model.getMaxIterations();
 
                     if (model.getColour().equals(Color.RED)) {
                         g.setColor(new Color(value, 0, 0));
@@ -63,7 +63,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         int width = Math.abs(x2 - x1);
         int height = Math.abs(y2 - y1);
 
-        if (!zoom) {
+        if (!doneZoom) {
             if (x2 > x1) {
                 if (y2 > y1) {
                     g.setColor(Color.WHITE);
@@ -103,7 +103,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     public void mousePressed(MouseEvent e) {
         x1 = e.getX();
         y1 = e.getY();
-        zoom = false;
+        doneZoom = false;
     }
 
     @Override
@@ -138,7 +138,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         model.setMaxImg(model.getMaxImg()
                 - ((double) (model.getYResolution() - y2) / model.getYResolution()) * img_range);
 
-        zoom = true;
+        doneZoom = true;
         model.update();
     }
 
@@ -146,6 +146,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     public void mouseDragged(MouseEvent e) {
         x2 = e.getX();
         y2 = e.getY();
+
         this.repaint();
     }
 

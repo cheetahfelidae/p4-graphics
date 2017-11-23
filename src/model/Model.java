@@ -11,7 +11,7 @@ public class Model extends Observable {
     private static final int DEFAULT_Y_RESOLUTION = 800;
 
     private int[][] mandelbrotData;
-    private MandelbrotCalculator mandCal;
+    private MandelbrotCalculator mandelCal;
     private int xRes, yRes, maxIterations;
     private double minReal, maxReal, minImg, maxImg, radiusSquared;
     private Color colour;
@@ -20,7 +20,7 @@ public class Model extends Observable {
     private Stack<ModelSetting> redoStack;
 
     public Model() {
-        mandCal = new MandelbrotCalculator();
+        mandelCal = new MandelbrotCalculator();
 
         this.xRes = DEFAULT_X_RESOLUTION;
         this.yRes = DEFAULT_Y_RESOLUTION;
@@ -35,7 +35,7 @@ public class Model extends Observable {
         undoStack = new Stack<>();
         redoStack = new Stack<>();
 
-        this.mandelbrotData = mandCal.calcMandelbrotSet(
+        this.mandelbrotData = mandelCal.calcMandelbrotSet(
                 xRes,
                 yRes,
                 MandelbrotCalculator.INITIAL_MIN_REAL,
@@ -49,15 +49,15 @@ public class Model extends Observable {
     public void update(ModelSetting modelSetting) {
         this.xRes = modelSetting.getXResolution();
         this.yRes = modelSetting.getYResolution();
-        this.minReal = modelSetting.getMin_real();
-        this.maxReal = modelSetting.getMax_real();
-        this.minImg = modelSetting.getMin_img();
-        this.maxImg = modelSetting.getMax_img();
-        this.maxIterations = modelSetting.getMax_iterations();
-        this.radiusSquared = modelSetting.getRadius_squared();
+        this.minReal = modelSetting.getMinReal();
+        this.maxReal = modelSetting.getMaxReal();
+        this.minImg = modelSetting.getMinImg();
+        this.maxImg = modelSetting.getMaxImg();
+        this.maxIterations = modelSetting.getMaxIterations();
+        this.radiusSquared = modelSetting.getRadiusSquared();
         this.colour = modelSetting.getColour();
 
-        this.mandelbrotData = mandCal.calcMandelbrotSet(xRes,
+        this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
                 maxReal,
@@ -71,7 +71,7 @@ public class Model extends Observable {
     }
 
     public void update() {
-        this.mandelbrotData = mandCal.calcMandelbrotSet(xRes,
+        this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
                 maxReal,
@@ -98,7 +98,7 @@ public class Model extends Observable {
         undoStack.clear();
         redoStack.clear();
 
-        this.mandelbrotData = mandCal.calcMandelbrotSet(xRes,
+        this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
                 maxReal,
@@ -115,8 +115,8 @@ public class Model extends Observable {
         this.mandelbrotData = mandelbrotData;
     }
 
-    public void setMandCal(MandelbrotCalculator mandCal) {
-        this.mandCal = mandCal;
+    public void setMandelCal(MandelbrotCalculator mandelCal) {
+        this.mandelCal = mandelCal;
     }
 
     public void setxRes(int xRes) {
