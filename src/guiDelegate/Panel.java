@@ -4,12 +4,20 @@ import model.Model;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
-public class Panel extends JPanel {
+public class Panel extends JPanel implements MouseListener, MouseMotionListener {
     Model model;
+    int x1, y1, x2, y2;
+    boolean zoom;
 
     public Panel(Model model) {
         this.model = model;
+        zoom = false;
+        super.addMouseListener(this);
+        super.addMouseMotionListener(this);
     }
 
     @Override
@@ -41,5 +49,108 @@ public class Panel extends JPanel {
                 g.drawLine(j, i, j, i);
             }
         }
+
+        int width = Math.abs(x2 - x1);
+        int height = Math.abs(y2 - y1);
+
+        if (!zoom) {
+            if (x2 > x1) {
+                if (y2 > y1) {
+                    g.setColor(Color.WHITE);
+                    g.drawRect(x1, y1, width, height);
+                } else {
+                    g.setColor(Color.WHITE);
+                    g.drawRect(x1, y2, width, height);
+                }
+            } else {
+                if (y2 > y1) {
+                    g.setColor(Color.WHITE);
+                    g.drawRect(x2, y1, width, height);
+                } else {
+                    g.setColor(Color.WHITE);
+                    g.drawRect(x2, y2, width, height);
+                }
+            }
+        }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        x1 = e.getX();
+        y1 = e.getY();
+        zoom = false;
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if (x1 > x2) {
+            int temp = x1;
+            x1 = x2;
+            x2 = temp;
+        }
+
+        if (y1 > y2) {
+            int temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+
+        y2 = y1 + (x2 - x1);
+
+//        ModelSetting setting = settings.get(index_cur_setting);
+//
+//        // delete post settings if exist before adding a previous model setting
+//        if (index_cur_setting < settings.size() - 1) {
+//            for (int i = index_cur_setting + 1; i < settings.size(); i++) {
+//                settings.remove(i);
+//            }
+//        }
+
+        double real_range = model.getMax_real() - model.getMin_real();
+        double img_range = model.getMax_img() - model.getMin_img();
+
+        model.setMin_real(model.getMin_real()
+                + ((double) x1 / model.getXResolution()) * real_range);
+        model.setMin_img(model.getMin_img()
+                + ((double) y1 / model.getYResolution()) * img_range);
+
+        model.setMax_real(model.getMax_real()
+                - ((double) (model.getXResolution() - x2) / model.getXResolution()) * real_range);
+        model.setMax_img(model.getMax_img()
+                - ((double) (model.getYResolution() - y2) / model.getYResolution()) * img_range);
+
+//        settings.add(new ModelSetting(setting)); // save it as a current model setting
+//        index_cur_setting = settings.size() - 1;
+
+        zoom = true;
+        model.update();
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        x2 = e.getX();
+        y2 = e.getY();
+        this.repaint();
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+    }
+
 }

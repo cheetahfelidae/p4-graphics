@@ -63,6 +63,20 @@ public class Model extends Observable {
         notifyObservers();
     }
 
+    public void update() {
+        this.mandelbrot_data = mand_cal.calcMandelbrotSet(x_res,
+                y_res,
+                min_real,
+                max_real,
+                min_img,
+                max_img,
+                max_iterations,
+                radius_squared);
+
+        setChanged();
+        notifyObservers();
+    }
+
     public void reset() {
         this.x_res = DEFAULT_X_RESOLUTION;
         this.y_res = DEFAULT_Y_RESOLUTION;
@@ -86,6 +100,50 @@ public class Model extends Observable {
 
         setChanged();
         notifyObservers();
+    }
+
+    public void setMandelbrot_data(int[][] mandelbrot_data) {
+        this.mandelbrot_data = mandelbrot_data;
+    }
+
+    public void setMand_cal(MandelbrotCalculator mand_cal) {
+        this.mand_cal = mand_cal;
+    }
+
+    public void setX_res(int x_res) {
+        this.x_res = x_res;
+    }
+
+    public void setY_res(int y_res) {
+        this.y_res = y_res;
+    }
+
+    public void setMax_iterations(int max_iterations) {
+        this.max_iterations = max_iterations;
+    }
+
+    public void setMin_real(double min_real) {
+        this.min_real = min_real;
+    }
+
+    public void setMax_real(double max_real) {
+        this.max_real = max_real;
+    }
+
+    public void setMin_img(double min_img) {
+        this.min_img = min_img;
+    }
+
+    public void setMax_img(double max_img) {
+        this.max_img = max_img;
+    }
+
+    public void setRadius_squared(double radius_squared) {
+        this.radius_squared = radius_squared;
+    }
+
+    public void setColour(Color colour) {
+        this.colour = colour;
     }
 
     public int[][] getMandelbrot_data() {

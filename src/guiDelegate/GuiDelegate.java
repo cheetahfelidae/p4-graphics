@@ -8,7 +8,6 @@ import java.util.Observer;
 
 import javax.swing.*;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import model.Model;
 
 
@@ -40,8 +39,6 @@ public class GuiDelegate implements Observer {
     private ArrayList<ModelSetting> settings;
     private int index_cur_setting;
     private Model model;
-
-    private int x1, y1, x2, y2;
 
     /**
      * Instantiate a new GuiDelegate object
@@ -270,80 +267,8 @@ public class GuiDelegate implements Observer {
         setupMenu();
         setupToolbar();
 
-
         panel = new Panel(model);
         panel.setBackground(Color.WHITE);
-
-        panel.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                x1 = e.getX();
-                y1 = e.getY();
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                x2 = e.getX();
-                y2 = e.getY();
-
-                if (x1 > x2) {
-                    int temp = x1;
-                    x1 = x2;
-                    x2 = temp;
-                }
-
-                if (y1 > y2) {
-                    int temp = y1;
-                    y1 = y2;
-                    y2 = temp;
-                }
-
-                ModelSetting setting = settings.get(index_cur_setting);
-
-                // delete post settings if exist before adding a previous model setting
-                if (index_cur_setting < settings.size() - 1) {
-                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-                        settings.remove(i);
-                    }
-                }
-
-                double real_range = setting.getMax_real() - setting.getMin_real();
-                double img_range = setting.getMax_img() - setting.getMin_img();
-
-                setting.setMin_real(setting.getMin_real()
-                        + ((double) x1 / setting.getXResolution()) * real_range);
-                setting.setMin_img(setting.getMin_img()
-                        + ((double) y1 / setting.getYResolution()) * img_range);
-
-                setting.setMax_real(setting.getMax_real()
-                        - ((double) (setting.getXResolution() - x2) / setting.getXResolution()) * real_range);
-                setting.setMax_img(setting.getMax_img()
-                        - ((double) (setting.getYResolution() - y2) / setting.getYResolution()) * img_range);
-
-
-                settings.add(new ModelSetting(setting)); // save it as a current model setting
-                index_cur_setting = settings.size() - 1;
-
-                model.update(setting);
-            }
-        });
-
         mainFrame.add(panel, BorderLayout.CENTER);
         mainFrame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         mainFrame.setVisible(true);
