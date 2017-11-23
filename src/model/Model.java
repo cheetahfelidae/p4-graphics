@@ -4,33 +4,40 @@ import guiDelegate.ModelSetting;
 
 import java.awt.*;
 import java.util.Observable;
+import java.util.Stack;
 
 public class Model extends Observable {
     private static final int DEFAULT_X_RESOLUTION = 800;
     private static final int DEFAULT_Y_RESOLUTION = 800;
 
-    private int[][] mandelbrot_data;
-    private MandelbrotCalculator mand_cal;
-    private int x_res, y_res, max_iterations;
-    private double min_real, max_real, min_img, max_img, radius_squared;
+    private int[][] mandelbrotData;
+    private MandelbrotCalculator mandCal;
+    private int xRes, yRes, maxIterations;
+    private double minReal, maxReal, minImg, maxImg, radiusSquared;
     private Color colour;
 
-    public Model() {
-        mand_cal = new MandelbrotCalculator();
+    private Stack<ModelSetting> undoStack;
+    private Stack<ModelSetting> redoStack;
 
-        this.x_res = DEFAULT_X_RESOLUTION;
-        this.y_res = DEFAULT_Y_RESOLUTION;
-        this.min_real = MandelbrotCalculator.INITIAL_MIN_REAL;
-        this.max_real = MandelbrotCalculator.INITIAL_MAX_REAL;
-        this.min_img = MandelbrotCalculator.INITIAL_MIN_IMAGINARY;
-        this.max_img = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
-        this.max_iterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
-        this.radius_squared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
+    public Model() {
+        mandCal = new MandelbrotCalculator();
+
+        this.xRes = DEFAULT_X_RESOLUTION;
+        this.yRes = DEFAULT_Y_RESOLUTION;
+        this.minReal = MandelbrotCalculator.INITIAL_MIN_REAL;
+        this.maxReal = MandelbrotCalculator.INITIAL_MAX_REAL;
+        this.minImg = MandelbrotCalculator.INITIAL_MIN_IMAGINARY;
+        this.maxImg = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
+        this.maxIterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
+        this.radiusSquared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
         this.colour = Color.BLUE;
 
-        this.mandelbrot_data = mand_cal.calcMandelbrotSet(
-                x_res,
-                y_res,
+        undoStack = new Stack<>();
+        redoStack = new Stack<>();
+
+        this.mandelbrotData = mandCal.calcMandelbrotSet(
+                xRes,
+                yRes,
                 MandelbrotCalculator.INITIAL_MIN_REAL,
                 MandelbrotCalculator.INITIAL_MAX_REAL,
                 MandelbrotCalculator.INITIAL_MIN_IMAGINARY,
@@ -40,149 +47,159 @@ public class Model extends Observable {
     }
 
     public void update(ModelSetting modelSetting) {
-        this.x_res = modelSetting.getXResolution();
-        this.y_res = modelSetting.getYResolution();
-        this.min_real = modelSetting.getMin_real();
-        this.max_real = modelSetting.getMax_real();
-        this.min_img = modelSetting.getMin_img();
-        this.max_img = modelSetting.getMax_img();
-        this.max_iterations = modelSetting.getMax_iterations();
-        this.radius_squared = modelSetting.getRadius_squared();
+        this.xRes = modelSetting.getXResolution();
+        this.yRes = modelSetting.getYResolution();
+        this.minReal = modelSetting.getMin_real();
+        this.maxReal = modelSetting.getMax_real();
+        this.minImg = modelSetting.getMin_img();
+        this.maxImg = modelSetting.getMax_img();
+        this.maxIterations = modelSetting.getMax_iterations();
+        this.radiusSquared = modelSetting.getRadius_squared();
         this.colour = modelSetting.getColour();
 
-        this.mandelbrot_data = mand_cal.calcMandelbrotSet(x_res,
-                y_res,
-                min_real,
-                max_real,
-                min_img,
-                max_img,
-                max_iterations,
-                radius_squared);
+        this.mandelbrotData = mandCal.calcMandelbrotSet(xRes,
+                yRes,
+                minReal,
+                maxReal,
+                minImg,
+                maxImg,
+                maxIterations,
+                radiusSquared);
 
         setChanged();
         notifyObservers();
     }
 
     public void update() {
-        this.mandelbrot_data = mand_cal.calcMandelbrotSet(x_res,
-                y_res,
-                min_real,
-                max_real,
-                min_img,
-                max_img,
-                max_iterations,
-                radius_squared);
+        this.mandelbrotData = mandCal.calcMandelbrotSet(xRes,
+                yRes,
+                minReal,
+                maxReal,
+                minImg,
+                maxImg,
+                maxIterations,
+                radiusSquared);
 
         setChanged();
         notifyObservers();
     }
 
     public void reset() {
-        this.x_res = DEFAULT_X_RESOLUTION;
-        this.y_res = DEFAULT_Y_RESOLUTION;
-        this.min_real = MandelbrotCalculator.INITIAL_MIN_REAL;
-        this.max_real = MandelbrotCalculator.INITIAL_MAX_REAL;
-        this.min_img = MandelbrotCalculator.INITIAL_MIN_IMAGINARY;
-        this.max_img = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
-        this.max_iterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
-        this.radius_squared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
+        this.xRes = DEFAULT_X_RESOLUTION;
+        this.yRes = DEFAULT_Y_RESOLUTION;
+        this.minReal = MandelbrotCalculator.INITIAL_MIN_REAL;
+        this.maxReal = MandelbrotCalculator.INITIAL_MAX_REAL;
+        this.minImg = MandelbrotCalculator.INITIAL_MIN_IMAGINARY;
+        this.maxImg = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
+        this.maxIterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
+        this.radiusSquared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
         this.colour = Color.BLUE;
 
-        mandelbrot_data = mand_cal.calcMandelbrotSet(
-                x_res,
-                y_res,
-                MandelbrotCalculator.INITIAL_MIN_REAL,
-                MandelbrotCalculator.INITIAL_MAX_REAL,
-                MandelbrotCalculator.INITIAL_MIN_IMAGINARY,
-                MandelbrotCalculator.INITIAL_MAX_IMAGINARY,
-                MandelbrotCalculator.INITIAL_MAX_ITERATIONS,
-                MandelbrotCalculator.DEFAULT_RADIUS_SQUARED);
+        undoStack.clear();
+        redoStack.clear();
+
+        this.mandelbrotData = mandCal.calcMandelbrotSet(xRes,
+                yRes,
+                minReal,
+                maxReal,
+                minImg,
+                maxImg,
+                maxIterations,
+                radiusSquared);
 
         setChanged();
         notifyObservers();
     }
 
-    public void setMandelbrot_data(int[][] mandelbrot_data) {
-        this.mandelbrot_data = mandelbrot_data;
+    public void setMandelbrotData(int[][] mandelbrotData) {
+        this.mandelbrotData = mandelbrotData;
     }
 
-    public void setMand_cal(MandelbrotCalculator mand_cal) {
-        this.mand_cal = mand_cal;
+    public void setMandCal(MandelbrotCalculator mandCal) {
+        this.mandCal = mandCal;
     }
 
-    public void setX_res(int x_res) {
-        this.x_res = x_res;
+    public void setxRes(int xRes) {
+        this.xRes = xRes;
     }
 
-    public void setY_res(int y_res) {
-        this.y_res = y_res;
+    public void setyRes(int yRes) {
+        this.yRes = yRes;
     }
 
-    public void setMax_iterations(int max_iterations) {
-        this.max_iterations = max_iterations;
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
     }
 
-    public void setMin_real(double min_real) {
-        this.min_real = min_real;
+    public void setMinReal(double minReal) {
+        this.minReal = minReal;
     }
 
-    public void setMax_real(double max_real) {
-        this.max_real = max_real;
+    public void setMaxReal(double maxReal) {
+        this.maxReal = maxReal;
     }
 
-    public void setMin_img(double min_img) {
-        this.min_img = min_img;
+    public void setMinImg(double minImg) {
+        this.minImg = minImg;
     }
 
-    public void setMax_img(double max_img) {
-        this.max_img = max_img;
+    public void setMaxImg(double maxImg) {
+        this.maxImg = maxImg;
     }
 
-    public void setRadius_squared(double radius_squared) {
-        this.radius_squared = radius_squared;
+    public void setRadiusSquared(double radiusSquared) {
+        this.radiusSquared = radiusSquared;
     }
 
     public void setColour(Color colour) {
         this.colour = colour;
     }
 
-    public int[][] getMandelbrot_data() {
-        return this.mandelbrot_data;
+    public int[][] getMandelbrotData() {
+        return this.mandelbrotData;
     }
 
     public int getXResolution() {
-        return this.x_res;
+        return this.xRes;
     }
 
     public int getYResolution() {
-        return this.y_res;
+        return this.yRes;
     }
 
-    public double getMin_real() {
-        return this.min_real;
+    public double getMinReal() {
+        return this.minReal;
     }
 
-    public double getMax_real() {
-        return this.max_real;
+    public double getMaxReal() {
+        return this.maxReal;
     }
 
-    public double getMin_img() {
-        return this.min_img;
+    public double getMinImg() {
+        return this.minImg;
     }
 
-    public double getMax_img() {
-        return this.max_img;
+    public double getMaxImg() {
+        return this.maxImg;
     }
 
-    public int getMax_iterations() {
-        return this.max_iterations;
+    public int getMaxIterations() {
+        return this.maxIterations;
     }
 
-    public double getRadius_squared() {
-        return this.radius_squared;
+    public double getRadiusSquared() {
+        return this.radiusSquared;
     }
 
     public Color getColour() {
         return colour;
+    }
+
+    public Stack<ModelSetting> getUndoStack() {
+        return undoStack;
+    }
+
+    public Stack<ModelSetting> getRedoStack() {
+        return redoStack;
     }
 }

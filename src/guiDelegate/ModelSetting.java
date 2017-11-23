@@ -18,12 +18,12 @@ public class ModelSetting {
     ModelSetting(Model model) {
         this.x_res = model.getXResolution();
         this.y_res = model.getYResolution();
-        this.min_real = model.getMin_real();
-        this.max_real = model.getMax_real();
-        this.min_img = model.getMin_img();
-        this.max_img = model.getMax_img();
-        this.max_iterations = model.getMax_iterations();
-        this.radius_squared = model.getRadius_squared();
+        this.min_real = model.getMinReal();
+        this.max_real = model.getMaxReal();
+        this.min_img = model.getMinImg();
+        this.max_img = model.getMaxImg();
+        this.max_iterations = model.getMaxIterations();
+        this.radius_squared = model.getRadiusSquared();
         this.colour = model.getColour();
     }
 

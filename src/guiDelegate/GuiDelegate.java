@@ -2,9 +2,9 @@ package guiDelegate;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Stack;
 
 import javax.swing.*;
 
@@ -32,13 +32,14 @@ public class GuiDelegate implements Observer {
 
     private JToolBar toolbar;
     private JTextField inputField;
-    private JButton change_colour_butt, reset_butt, undo_butt, redo_butt;
+    private JButton changeColourButton, resetButton, undoButton, redoButton;
     private JTextArea outputField;
     private JMenuBar menu;
     private Panel panel;
-    private ArrayList<ModelSetting> settings;
-    private int index_cur_setting;
     private Model model;
+
+    private Stack<ModelSetting> undoStack;
+    private Stack<ModelSetting> redoStack;
 
     /**
      * Instantiate a new GuiDelegate object
@@ -55,9 +56,8 @@ public class GuiDelegate implements Observer {
         outputField = new JTextArea(TEXT_WIDTH, TEXT_HEIGHT);
         outputField.setEditable(false);
         setupComponents();
-        settings = new ArrayList<>();
-        settings.add(new ModelSetting(model));
-        index_cur_setting = 0;
+        undoStack = model.getUndoStack();
+        redoStack = model.getRedoStack();
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
@@ -72,132 +72,88 @@ public class GuiDelegate implements Observer {
         JPopupMenu popup = new JPopupMenu();
         popup.add(new JMenuItem(new AbstractAction("Red") {
             public void actionPerformed(ActionEvent e) {
-                ModelSetting setting = settings.get(index_cur_setting);
+                undoStack.push(new ModelSetting(model));// save new previous setting
+                redoStack.clear();
 
-                // delete post settings if exist before adding a previous model setting
-                if (index_cur_setting < settings.size() - 1) {
-                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-                        settings.remove(i);
-                    }
-                }
+                model.setColour(Color.RED);
 
-                setting.setColour(Color.RED);
-                settings.add(new ModelSetting(setting)); // save it as a current model setting
-                index_cur_setting = settings.size() - 1;
-
-                model.update(setting);
+                model.update();
             }
         }));
         popup.add(new JMenuItem(new AbstractAction("Green") {
             public void actionPerformed(ActionEvent e) {
-                ModelSetting setting = settings.get(index_cur_setting);
+                undoStack.push(new ModelSetting(model));// save new previous setting
+                redoStack.clear();
 
-                // delete post settings if exist before adding a previous model setting
-                if (index_cur_setting < settings.size() - 1) {
-                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-                        settings.remove(i);
-                    }
-                }
+                model.setColour(Color.GREEN);
 
-                setting.setColour(Color.GREEN);
-                settings.add(new ModelSetting(setting)); // save it as a current model setting
-                index_cur_setting = settings.size() - 1;
-
-                model.update(setting);
+                model.update();
             }
         }));
         popup.add(new JMenuItem(new AbstractAction("Blue") {
             public void actionPerformed(ActionEvent e) {
-                ModelSetting setting = settings.get(index_cur_setting);
+                undoStack.push(new ModelSetting(model));// save new previous setting
+                redoStack.clear();
 
-                // delete post settings if exist before adding a previous model setting
-                if (index_cur_setting < settings.size() - 1) {
-                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-                        settings.remove(i);
-                    }
-                }
+                model.setColour(Color.BLUE);
 
-                setting.setColour(Color.BLUE);
-                settings.add(new ModelSetting(setting)); // save it as a current model setting
-                index_cur_setting = settings.size() - 1;
-
-                model.update(setting);
+                model.update();
             }
         }));
         popup.add(new JMenuItem(new AbstractAction("White") {
             public void actionPerformed(ActionEvent e) {
-                ModelSetting setting = settings.get(index_cur_setting);
+                undoStack.push(new ModelSetting(model));// save new previous setting
+                redoStack.clear();
 
-                // delete post settings if exist before adding a previous model setting
-                if (index_cur_setting < settings.size() - 1) {
-                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-                        settings.remove(i);
-                    }
-                }
+                model.setColour(Color.WHITE);
 
-                setting.setColour(Color.WHITE);
-                settings.add(new ModelSetting(setting)); // save it as a current model setting
-                index_cur_setting = settings.size() - 1;
-
-                model.update(setting);
+                model.update();
             }
         }));
 
-        change_colour_butt = new JButton("Change Colour");
-        change_colour_butt.addMouseListener(new MouseAdapter() {
+        changeColourButton = new JButton("Change Colour");
+        changeColourButton.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }
         });
 
-        reset_butt = new JButton("Reset");
-        reset_butt.addActionListener(new ActionListener() {
+        resetButton = new JButton("Reset");
+        resetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 model.reset();
             }
         });
 
-        undo_butt = new JButton("Undo");
-        undo_butt.addActionListener(new ActionListener() {
+        undoButton = new JButton("Undo");
+        undoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (index_cur_setting > 0) {
-                    index_cur_setting--;
-                }
+                redoStack.push(new ModelSetting(model)); // save
 
-                model.update(settings.get(index_cur_setting));
+                model.update(undoStack.pop());
             }
         });
 
-        redo_butt = new JButton("Redo");
-        redo_butt.addActionListener(new ActionListener() {
+        redoButton = new JButton("Redo");
+        redoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (index_cur_setting < settings.size()) {
-                    index_cur_setting++;
-                }
+                undoStack.push(new ModelSetting(model));// save new previous setting as an "undo" setting
 
-                model.update(settings.get(index_cur_setting));
+                model.update(redoStack.pop());
             }
         });
 
-        JLabel label = new JLabel("Current iteration: ");
+        JLabel label = new JLabel("Change Iterations: ");
 
         JButton add_button = new JButton("Update");       // to translate event for this button into appropriate model method call
         add_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ModelSetting setting = settings.get(index_cur_setting);
+                undoStack.push(new ModelSetting(model));// save new previous setting
+                redoStack.clear();
 
-                // delete post settings if exist before adding a previous model setting
-                if (index_cur_setting < settings.size() - 1) {
-                    for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-                        settings.remove(i);
-                    }
-                }
+                model.setMaxIterations(Integer.parseInt(inputField.getText()));
 
-                setting.setMax_iterations(Integer.parseInt(inputField.getText()));
-                settings.add(new ModelSetting(setting)); // save it as a current model setting
-                index_cur_setting = settings.size() - 1;
-
-                model.update(setting);
+                model.update();
 
                 inputField.setText("");                     // clear the input box in the GUI view
             }
@@ -218,10 +174,10 @@ public class GuiDelegate implements Observer {
         });
 
         // add buttons, label, and textfield to the toolbar
-        toolbar.add(change_colour_butt);
-        toolbar.add(reset_butt);
-        toolbar.add(undo_butt);
-        toolbar.add(redo_butt);
+        toolbar.add(changeColourButton);
+        toolbar.add(resetButton);
+        toolbar.add(undoButton);
+        toolbar.add(redoButton);
         toolbar.add(label);
         toolbar.add(inputField);
         toolbar.add(add_button);
@@ -297,6 +253,18 @@ public class GuiDelegate implements Observer {
         // in the caller's thread
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                if (undoStack.empty()) {
+                    undoButton.setEnabled(false);
+                } else {
+                    undoButton.setEnabled(true);
+                }
+
+                if (redoStack.empty()) {
+                    redoButton.setEnabled(false);
+                } else {
+                    redoButton.setEnabled(true);
+                }
+
                 panel.repaint();
             }
         });

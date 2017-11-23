@@ -7,15 +7,23 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Stack;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
-    Model model;
-    int x1, y1, x2, y2;
-    boolean zoom;
+    private Model model;
+    private int x1, y1, x2, y2;
+    private boolean zoom;
+
+    private Stack<ModelSetting> undoStack;
+    private Stack<ModelSetting> redoStack;
 
     public Panel(Model model) {
         this.model = model;
         zoom = false;
+
+        undoStack = model.getUndoStack();
+        redoStack = model.getRedoStack();
+
         super.addMouseListener(this);
         super.addMouseMotionListener(this);
     }
@@ -24,16 +32,16 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int[][] madelbrot_data = model.getMandelbrot_data();
+        int[][] madelbrot_data = model.getMandelbrotData();
 
         for (int i = 0; i < madelbrot_data.length; i++) {
             for (int j = 0; j < madelbrot_data[i].length; j++) {
 
-                if (madelbrot_data[i][j] >= model.getMax_iterations()) {
+                if (madelbrot_data[i][j] >= model.getMaxIterations()) {
                     g.setColor(Color.BLACK);
 
                 } else {
-                    float value = (float) madelbrot_data[i][j] / model.getMax_iterations();
+                    float value = (float) madelbrot_data[i][j] / model.getMaxIterations();
 
                     if (model.getColour() == Color.RED) {
                         g.setColor(new Color(value, 0, 0));
@@ -112,30 +120,21 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
         y2 = y1 + (x2 - x1);
 
-//        ModelSetting setting = settings.get(index_cur_setting);
-//
-//        // delete post settings if exist before adding a previous model setting
-//        if (index_cur_setting < settings.size() - 1) {
-//            for (int i = index_cur_setting + 1; i < settings.size(); i++) {
-//                settings.remove(i);
-//            }
-//        }
+        undoStack.push(new ModelSetting(model));// save new previous setting
+        redoStack.clear();
 
-        double real_range = model.getMax_real() - model.getMin_real();
-        double img_range = model.getMax_img() - model.getMin_img();
+        double real_range = model.getMaxReal() - model.getMinReal();
+        double img_range = model.getMaxImg() - model.getMinImg();
 
-        model.setMin_real(model.getMin_real()
+        model.setMinReal(model.getMinReal()
                 + ((double) x1 / model.getXResolution()) * real_range);
-        model.setMin_img(model.getMin_img()
+        model.setMinImg(model.getMinImg()
                 + ((double) y1 / model.getYResolution()) * img_range);
 
-        model.setMax_real(model.getMax_real()
+        model.setMaxReal(model.getMaxReal()
                 - ((double) (model.getXResolution() - x2) / model.getXResolution()) * real_range);
-        model.setMax_img(model.getMax_img()
+        model.setMaxImg(model.getMaxImg()
                 - ((double) (model.getYResolution() - y2) / model.getYResolution()) * img_range);
-
-//        settings.add(new ModelSetting(setting)); // save it as a current model setting
-//        index_cur_setting = settings.size() - 1;
 
         zoom = true;
         model.update();
