@@ -213,7 +213,7 @@ public class GuiDelegate implements Observer {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                System.out.println("Pressed " + e.getX() + " / " + e.getY());
+                System.out.println("1 " + e.getX() + " / " + e.getY());
                 x1 = e.getX();
                 y1 = e.getY();
 
@@ -221,35 +221,43 @@ public class GuiDelegate implements Observer {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                System.out.println("Release " + e.getX() + " / " + e.getY());
+                System.out.println("2 " + e.getX() + " / " + e.getY());
+
+                System.out.println();
 
                 x2 = e.getX();
                 y2 = e.getY();
 
+                if (x1 > x2) {
+                    int temp = x1;
+                    x1 = x2;
+                    x2 = temp;
+                }
+
+                if (y1 > y2) {
+                    int temp = y1;
+                    y1 = y2;
+                    y2 = temp;
+                }
+
                 pre_setting = new Setting(cur_setting);
 
-//                double uLeftX = Math.min(x1, x2);
-//                double bRightX = Math.max(x1, x2);
-//                double uLeftY = Math.min(y1, y2);
-//                double bRightY = Math.max(y1, y2);
+                double real_range = cur_setting.getMaxReal() - cur_setting.getMinReal();
+                double img_range = cur_setting.getMaxImaginary() - cur_setting.getMinImaginary();
 
-                double uLeftX = x1;
-                double bRightX = x2;
-                double uLeftY = y1;
-                double bRightY = y2;
+                double minReal = cur_setting.getMinReal() + ((double) x1 / cur_setting.getXResolution()) * real_range;
+                double minImg = cur_setting.getMinImaginary() + ((double) y1 / cur_setting.getYResolution()) * img_range;
 
-                double xWidth = cur_setting.getMaxReal() - cur_setting.getMinReal();
-                double yHeight = cur_setting.getMaxImaginary() - cur_setting.getMinImaginary();
+                double maxReal = cur_setting.getMaxReal() - ((double) (cur_setting.getXResolution() - x2) / cur_setting.getXResolution()) * real_range;
+                double maxImg = cur_setting.getMaxImaginary() - ((double) (cur_setting.getYResolution() - y2) / cur_setting.getYResolution()) * img_range;
 
-                double minReal = cur_setting.getMinReal() + (uLeftX / cur_setting.getXResolution()) * xWidth;
-                double maxReal = cur_setting.getMaxReal() - ((uLeftX - bRightX) / cur_setting.getXResolution()) * xWidth;
-
-                double minImg = cur_setting.getMinImaginary() + ((uLeftY - bRightY) / cur_setting.getXResolution()) * yHeight;
-                double maxImg = cur_setting.getMaxImaginary() - (uLeftY / cur_setting.getXResolution()) * yHeight;
+                System.out.println(minReal + " " + minImg);
+                System.out.println(maxReal + " " + maxImg);
 
                 cur_setting.setMinReal(minReal);
-                cur_setting.setMaxReal(maxReal);
                 cur_setting.setMinImaginary(minImg);
+
+                cur_setting.setMaxReal(maxReal);
                 cur_setting.setMaxImaginary(maxImg);
 
                 model.update(cur_setting);
