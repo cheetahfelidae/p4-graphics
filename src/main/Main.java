@@ -9,10 +9,9 @@ import model.Model;
  *
  * @author StudentID: 160026335
  */
-public class SimpleSwingMain {
+public class Main {
 
     public static void main(String[] args) {
-        Model model = new Model();
-        GuiDelegate delegate = new GuiDelegate(model); // pass the model object to the delegate, so that it can observe, display, and change the model
+        new GuiDelegate(new Model()); // pass the model object to the delegate, so that it can observe, display, and change the model
     }
 }

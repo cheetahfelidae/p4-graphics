@@ -5,17 +5,7 @@ import java.awt.event.*;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import model.Model;
 
@@ -45,7 +35,7 @@ public class GuiDelegate implements Observer {
     private JTextArea outputField;
     private JMenuBar menu;
     private Panel panel;
-    private Setting pre_setting, cur_setting, post_setting;
+    private ModelSetting pre_setting, cur_setting, post_setting;
     private Model model;
 
     private int x1, y1, x2, y2;
@@ -64,7 +54,7 @@ public class GuiDelegate implements Observer {
         outputField = new JTextArea(TEXT_WIDTH, TEXT_HEIGHT);
         outputField.setEditable(false);
         setupComponents();
-        cur_setting = new Setting(model);
+        cur_setting = new ModelSetting(model);
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
@@ -76,11 +66,45 @@ public class GuiDelegate implements Observer {
      * Listeners are created for the buttons and text field which translate user events to model object method calls (controller aspect of the delegate)
      */
     private void setupToolbar() {
-        change_colour_butt = new JButton("Change Colour");
-        change_colour_butt.addActionListener(new ActionListener() {
+        //Create the popup menu.
+        JPopupMenu popup = new JPopupMenu();
+        popup.add(new JMenuItem(new AbstractAction("Red") {
             public void actionPerformed(ActionEvent e) {
-                // should  call method in model class if you want it to affect model
-                JOptionPane.showMessageDialog(mainFrame, "Ooops, Button 2 not linked to model!");
+                pre_setting = new ModelSetting(cur_setting);
+
+                cur_setting.setColour(Color.RED);
+                model.update(cur_setting);
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("Green") {
+            public void actionPerformed(ActionEvent e) {
+                pre_setting = new ModelSetting(cur_setting);
+
+                cur_setting.setColour(Color.GREEN);
+                model.update(cur_setting);
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("Blue") {
+            public void actionPerformed(ActionEvent e) {
+                pre_setting = new ModelSetting(cur_setting);
+
+                cur_setting.setColour(Color.BLUE);
+                model.update(cur_setting);
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("White") {
+            public void actionPerformed(ActionEvent e) {
+                pre_setting = new ModelSetting(cur_setting);
+
+                cur_setting.setColour(Color.WHITE);
+                model.update(cur_setting);
+            }
+        }));
+
+        change_colour_butt = new JButton("Change Colour");
+        change_colour_butt.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                popup.show(e.getComponent(), e.getX(), e.getY());
             }
         });
 
@@ -95,8 +119,8 @@ public class GuiDelegate implements Observer {
         undo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (pre_setting != null) {
-                    post_setting = new Setting(cur_setting);
-                    cur_setting = new Setting(pre_setting);
+                    post_setting = new ModelSetting(cur_setting);
+                    cur_setting = new ModelSetting(pre_setting);
                     model.update(cur_setting);
                 }
             }
@@ -106,8 +130,8 @@ public class GuiDelegate implements Observer {
         redo_butt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (post_setting != null) {
-                    pre_setting = new Setting(cur_setting);
-                    cur_setting = new Setting(post_setting);
+                    pre_setting = new ModelSetting(cur_setting);
+                    cur_setting = new ModelSetting(post_setting);
                     model.update(cur_setting);
                 }
             }
@@ -118,9 +142,9 @@ public class GuiDelegate implements Observer {
         JButton add_button = new JButton("Update");       // to translate event for this button into appropriate model method call
         add_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                pre_setting = new Setting(cur_setting);
+                pre_setting = new ModelSetting(cur_setting);
 
-                cur_setting.setMaxIterations(Integer.parseInt(inputField.getText()));
+                cur_setting.setMax_iterations(Integer.parseInt(inputField.getText()));
                 model.update(cur_setting);
 
                 inputField.setText("");                     // clear the input box in the GUI view
@@ -213,7 +237,6 @@ public class GuiDelegate implements Observer {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                System.out.println("1 " + e.getX() + " / " + e.getY());
                 x1 = e.getX();
                 y1 = e.getY();
 
@@ -221,10 +244,6 @@ public class GuiDelegate implements Observer {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                System.out.println("2 " + e.getX() + " / " + e.getY());
-
-                System.out.println();
-
                 x2 = e.getX();
                 y2 = e.getY();
 
@@ -240,25 +259,25 @@ public class GuiDelegate implements Observer {
                     y2 = temp;
                 }
 
-                pre_setting = new Setting(cur_setting);
+                pre_setting = new ModelSetting(cur_setting);
 
-                double real_range = cur_setting.getMaxReal() - cur_setting.getMinReal();
-                double img_range = cur_setting.getMaxImaginary() - cur_setting.getMinImaginary();
+                double real_range = cur_setting.getMax_real() - cur_setting.getMin_real();
+                double img_range = cur_setting.getMax_img() - cur_setting.getMin_img();
 
-                double minReal = cur_setting.getMinReal() + ((double) x1 / cur_setting.getXResolution()) * real_range;
-                double minImg = cur_setting.getMinImaginary() + ((double) y1 / cur_setting.getYResolution()) * img_range;
+                double minReal = cur_setting.getMin_real() + ((double) x1 / cur_setting.getXResolution()) * real_range;
+                double minImg = cur_setting.getMin_img() + ((double) y1 / cur_setting.getYResolution()) * img_range;
 
-                double maxReal = cur_setting.getMaxReal() - ((double) (cur_setting.getXResolution() - x2) / cur_setting.getXResolution()) * real_range;
-                double maxImg = cur_setting.getMaxImaginary() - ((double) (cur_setting.getYResolution() - y2) / cur_setting.getYResolution()) * img_range;
+                double maxReal = cur_setting.getMax_real() - ((double) (cur_setting.getXResolution() - x2) / cur_setting.getXResolution()) * real_range;
+                double maxImg = cur_setting.getMax_img() - ((double) (cur_setting.getYResolution() - y2) / cur_setting.getYResolution()) * img_range;
 
                 System.out.println(minReal + " " + minImg);
                 System.out.println(maxReal + " " + maxImg);
 
-                cur_setting.setMinReal(minReal);
-                cur_setting.setMinImaginary(minImg);
+                cur_setting.setMin_real(minReal);
+                cur_setting.setMin_img(minImg);
 
-                cur_setting.setMaxReal(maxReal);
-                cur_setting.setMaxImaginary(maxImg);
+                cur_setting.setMax_real(maxReal);
+                cur_setting.setMax_img(maxImg);
 
                 model.update(cur_setting);
             }
