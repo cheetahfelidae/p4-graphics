@@ -21,33 +21,15 @@ public class Model extends Observable {
 
     public Model() {
         mandelCal = new MandelbrotCalculator();
-
-        this.xRes = DEFAULT_X_RESOLUTION;
-        this.yRes = DEFAULT_Y_RESOLUTION;
-        this.minReal = MandelbrotCalculator.INITIAL_MIN_REAL;
-        this.maxReal = MandelbrotCalculator.INITIAL_MAX_REAL;
-        this.minImg = MandelbrotCalculator.INITIAL_MIN_IMAGINARY;
-        this.maxImg = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
-        this.maxIterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
-        this.radiusSquared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
-        this.colour = Color.BLUE;
-
         undoStack = new Stack<>();
         redoStack = new Stack<>();
         setting_frames = new ArrayDeque<>();
 
-        this.mandelbrotData = mandelCal.calcMandelbrotSet(
-                xRes,
-                yRes,
-                MandelbrotCalculator.INITIAL_MIN_REAL,
-                MandelbrotCalculator.INITIAL_MAX_REAL,
-                MandelbrotCalculator.INITIAL_MIN_IMAGINARY,
-                MandelbrotCalculator.INITIAL_MAX_IMAGINARY,
-                MandelbrotCalculator.INITIAL_MAX_ITERATIONS,
-                MandelbrotCalculator.DEFAULT_RADIUS_SQUARED);
+        reset();
     }
 
     public void update(ModelSetting modelSetting) {
+
         this.xRes = modelSetting.getXResolution();
         this.yRes = modelSetting.getYResolution();
         this.minReal = modelSetting.getMinReal();
@@ -72,6 +54,7 @@ public class Model extends Observable {
     }
 
     public void update() {
+
         this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
@@ -85,6 +68,9 @@ public class Model extends Observable {
         notifyObservers();
     }
 
+    /**
+     * reset all parameter settings back to their defaults and display the corresponding image.
+     */
     public void reset() {
         this.xRes = DEFAULT_X_RESOLUTION;
         this.yRes = DEFAULT_Y_RESOLUTION;
@@ -94,10 +80,11 @@ public class Model extends Observable {
         this.maxImg = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
         this.maxIterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
         this.radiusSquared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
-        this.colour = Color.BLUE;
+        this.colour = Color.GREEN;
 
         undoStack.clear();
         redoStack.clear();
+        setting_frames.clear();
 
         this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,

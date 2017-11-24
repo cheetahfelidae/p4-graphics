@@ -9,7 +9,6 @@ import javax.swing.*;
 
 import model.Model;
 
-
 /**
  * The GuiDelegate class whose purpose is to render relevant state information stored in the model and make changes to the model state based on user events.
  * <p>
@@ -21,7 +20,6 @@ import model.Model;
  * the update(...) method below is called in order to update the view of the model.
  */
 public class GuiDelegate implements Observer {
-
     private static final int FRAME_HEIGHT = 800;
     private static final int FRAME_WIDTH = 800;
     private static final int TEXT_HEIGHT = 10;
@@ -39,7 +37,7 @@ public class GuiDelegate implements Observer {
 
     private Stack<ModelSetting> undoStack;
     private Stack<ModelSetting> redoStack;
-    private ArrayDeque<ModelSetting> setting_frames;
+    private ArrayDeque<ModelSetting> settingFrames;
 
     /**
      * Instantiate a new GuiDelegate object
@@ -60,7 +58,7 @@ public class GuiDelegate implements Observer {
         undoStack = model.getUndoStack();
         redoStack = model.getRedoStack();
 
-        setting_frames = model.getSetting_frames();
+        settingFrames = model.getSetting_frames();
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
@@ -72,54 +70,7 @@ public class GuiDelegate implements Observer {
      * Listeners are created for the buttons and text field which translate user events to model object method calls (controller aspect of the delegate)
      */
     private void setupToolbar() {
-        JPopupMenu popup = new JPopupMenu();
-        popup.add(new JMenuItem(new AbstractAction("Red") {
-            public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save new previous setting
-                redoStack.clear();
-
-                model.setColour(Color.RED);
-
-                model.update();
-            }
-        }));
-        popup.add(new JMenuItem(new AbstractAction("Green") {
-            public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save new previous setting
-                redoStack.clear();
-
-                model.setColour(Color.GREEN);
-
-                model.update();
-            }
-        }));
-        popup.add(new JMenuItem(new AbstractAction("Blue") {
-            public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save new previous setting
-                redoStack.clear();
-
-                model.setColour(Color.BLUE);
-
-                model.update();
-            }
-        }));
-        popup.add(new JMenuItem(new AbstractAction("White") {
-            public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save new previous setting
-                redoStack.clear();
-
-                model.setColour(Color.WHITE);
-
-                model.update();
-            }
-        }));
-
-        changeColourButton = new JButton("Change Colour");
-        changeColourButton.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                popup.show(e.getComponent(), e.getX(), e.getY());
-            }
-        });
+        createChangeColourButton();
 
         resetButton = new JButton("Reset");
         resetButton.addActionListener(new ActionListener() {
@@ -129,18 +80,20 @@ public class GuiDelegate implements Observer {
         });
 
         undoButton = new JButton("Undo");
+        undoButton.setEnabled(false);
         undoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                redoStack.push(new ModelSetting(model)); // save
+                storeRedoSetting();
 
                 model.update(undoStack.pop());
             }
         });
 
         redoButton = new JButton("Redo");
+        redoButton.setEnabled(false);
         redoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save new previous setting as an "undo" setting
+                undoStack.push(new ModelSetting(model));// save a model setting as a previous setting for undo operation
 
                 model.update(redoStack.pop());
             }
@@ -148,21 +101,20 @@ public class GuiDelegate implements Observer {
 
         JLabel label = new JLabel("Change Iterations: ");
 
-        JButton add_button = new JButton("Update");       // to translate event for this button into appropriate model method call
+        JButton add_button = new JButton("Update");
         add_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save new previous setting
-                redoStack.clear();
+                storeUndoSetting();
 
                 model.setMaxIterations(Integer.parseInt(inputField.getText()));
 
                 model.update();
 
-                inputField.setText("");                     // clear the input box in the GUI view
+                inputField.setText("");// clear the input box in the GUI view
             }
         });
 
-        inputField.addKeyListener(new KeyListener() {        // to translate key event for the text filed into appropriate model method call
+        inputField.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     add_button.doClick();
@@ -178,9 +130,11 @@ public class GuiDelegate implements Observer {
 
         // add buttons, label, and textfield to the toolbar
         toolbar.add(changeColourButton);
+        toolbar.addSeparator();
         toolbar.add(resetButton);
         toolbar.add(undoButton);
         toolbar.add(redoButton);
+        toolbar.addSeparator();
         toolbar.add(label);
         toolbar.add(inputField);
         toolbar.add(add_button);
@@ -189,30 +143,91 @@ public class GuiDelegate implements Observer {
     }
 
     /**
+     * Create a change colour button which four colour pop-up options.
+     */
+    private void createChangeColourButton() {
+        JPopupMenu popup = new JPopupMenu();
+        popup.add(new JMenuItem(new AbstractAction("Red") {
+            public void actionPerformed(ActionEvent e) {
+                storeUndoSetting();
+
+                model.setColour(Color.RED);
+
+                model.update();
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("Green") {
+            public void actionPerformed(ActionEvent e) {
+                storeUndoSetting();
+
+                model.setColour(Color.GREEN);
+
+                model.update();
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("Blue") {
+            public void actionPerformed(ActionEvent e) {
+                storeUndoSetting();
+
+                model.setColour(Color.BLUE);
+
+                model.update();
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("Gray") {
+            public void actionPerformed(ActionEvent e) {
+                storeUndoSetting();
+
+                model.setColour(Color.GRAY);
+
+                model.update();
+            }
+        }));
+
+        changeColourButton = new JButton("Change Colour");
+        changeColourButton.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                popup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+    }
+
+    /**
+     * store the most recently used parameter settings for undo operation.
+     */
+    private void storeUndoSetting() {
+        undoStack.push(new ModelSetting(model));
+        redoStack.clear();
+    }
+
+    /**
+     * store the most recently used parameter settings for redo operation.
+     */
+    private void storeRedoSetting() {
+        redoStack.push(new ModelSetting(model));
+    }
+
+    /**
      * Sets up File menu with Load and Save entries
-     * The Load and Save actions would normally be translated to appropriate model method calls similar to the way the code does this
-     * above in @see #setupToolbar(). However, load and save functionality is not implemented here, instead the code below merely displays
-     * an error message.
+     * <p>
+     * Save and Load : permit parameter settings and potentially the computed image to be saved
+     * and loaded to/from file thereby permitting a saved image to be re-loaded
+     * and the user to continue exploring the Mandelbrot set from that position onward.
      */
     private void setupMenu() {
         JMenu file = new JMenu("File");
         JMenuItem load = new JMenuItem("Load");
-        JMenuItem save = new JMenuItem("Save");
-        file.add(load);
-        file.add(save);
-        menu.add(file);
-
         load.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fc = new JFileChooser();
                 File workingDirectory = new File(System.getProperty("user.dir"));
                 fc.setCurrentDirectory(workingDirectory);
                 int returnVal = fc.showOpenDialog(fc);
+
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     try {
-                        undoStack.push(new ModelSetting(model));// save new previous setting
-                        redoStack.clear();
+                        storeUndoSetting();
 
                         FileInputStream fi = new FileInputStream(file);
                         ObjectInputStream oi = new ObjectInputStream(fi);
@@ -226,29 +241,38 @@ public class GuiDelegate implements Observer {
                         ex.printStackTrace();
                     }
                 }
+
             }
         });
+
+        JMenuItem save = new JMenuItem("Save");
         save.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fc = new JFileChooser();
                 File workingDirectory = new File(System.getProperty("user.dir"));
                 fc.setCurrentDirectory(workingDirectory);
                 int returnVal = fc.showSaveDialog(fc);
+
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     try {
-                        System.out.println("File is " + file.toString());
                         FileOutputStream f = new FileOutputStream(file);
                         ObjectOutputStream o = new ObjectOutputStream(f);
                         o.writeObject(new ModelSetting(model));
+
                         o.close();
                         f.close();
+
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
             }
         });
+
+        file.add(load);
+        file.add(save);
+        menu.add(file);
 
         // add menu bar to frame
         mainFrame.setJMenuBar(menu);
@@ -305,8 +329,8 @@ public class GuiDelegate implements Observer {
 
                 panel.repaint();
 
-                if (setting_frames.size() > 0) {
-                    model.update(setting_frames.remove());
+                if (settingFrames.size() > 0) {
+                    model.update(settingFrames.remove());
                 }
             }
         });
