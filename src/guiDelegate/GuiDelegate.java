@@ -179,6 +179,15 @@ public class GuiDelegate implements Observer {
                 model.update();
             }
         }));
+        popup.add(new JMenuItem(new AbstractAction("White") {
+            public void actionPerformed(ActionEvent e) {
+                storeUndoSetting(true);
+
+                model.setColour(Color.WHITE);
+
+                model.update();
+            }
+        }));
 
         changeColourButton = new JButton("Change Colour");
         changeColourButton.addMouseListener(new MouseAdapter() {

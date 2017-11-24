@@ -80,7 +80,7 @@ public class Model extends Observable {
         this.maxImg = MandelbrotCalculator.INITIAL_MAX_IMAGINARY;
         this.maxIterations = MandelbrotCalculator.INITIAL_MAX_ITERATIONS;
         this.radiusSquared = MandelbrotCalculator.DEFAULT_RADIUS_SQUARED;
-        this.colour = Color.GREEN;
+        this.colour = Color.WHITE;
 
         undoStack.clear();
         redoStack.clear();

@@ -93,7 +93,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
      */
     private void draw_dragging_line(Graphics g) {
         // set an appropriate colour for a specific colour of the background.
-        if (model.getColour().equals(Color.GRAY)) {
+        if (model.getColour().equals(Color.WHITE) || model.getColour().equals(Color.GRAY)) {
             g.setColor(Color.BLUE);
         } else {
             g.setColor(Color.WHITE);
