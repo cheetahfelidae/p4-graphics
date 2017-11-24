@@ -22,7 +22,6 @@ import model.Model;
 public class GuiDelegate implements Observer {
     private static final int FRAME_HEIGHT = 800;
     private static final int FRAME_WIDTH = 800;
-    private static final int TEXT_HEIGHT = 10;
     private static final int TEXT_WIDTH = 10;
 
     private JFrame mainFrame;
@@ -30,7 +29,6 @@ public class GuiDelegate implements Observer {
     private JToolBar toolbar;
     private JTextField inputField;
     private JButton changeColourButton, resetButton, undoButton, redoButton;
-    private JTextArea outputField;
     private JMenuBar menu;
     private Panel panel;
     private Model model;
@@ -51,14 +49,12 @@ public class GuiDelegate implements Observer {
         menu = new JMenuBar();
         toolbar = new JToolBar();
         inputField = new JTextField(TEXT_WIDTH);
-        outputField = new JTextArea(TEXT_WIDTH, TEXT_HEIGHT);
-        outputField.setEditable(false);
         setupComponents();
 
         undoStack = model.getUndoStack();
         redoStack = model.getRedoStack();
 
-        settingFrames = model.getSetting_frames();
+        settingFrames = model.getSettingFrames();
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
@@ -93,7 +89,7 @@ public class GuiDelegate implements Observer {
         redoButton.setEnabled(false);
         redoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                undoStack.push(new ModelSetting(model));// save a model setting as a previous setting for undo operation
+                storeUndoSetting(false);
 
                 model.update(redoStack.pop());
             }
@@ -104,7 +100,7 @@ public class GuiDelegate implements Observer {
         JButton add_button = new JButton("Update");
         add_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                storeUndoSetting();
+                storeUndoSetting(true);
 
                 model.setMaxIterations(Integer.parseInt(inputField.getText()));
 
@@ -149,7 +145,7 @@ public class GuiDelegate implements Observer {
         JPopupMenu popup = new JPopupMenu();
         popup.add(new JMenuItem(new AbstractAction("Red") {
             public void actionPerformed(ActionEvent e) {
-                storeUndoSetting();
+                storeUndoSetting(true);
 
                 model.setColour(Color.RED);
 
@@ -158,7 +154,7 @@ public class GuiDelegate implements Observer {
         }));
         popup.add(new JMenuItem(new AbstractAction("Green") {
             public void actionPerformed(ActionEvent e) {
-                storeUndoSetting();
+                storeUndoSetting(true);
 
                 model.setColour(Color.GREEN);
 
@@ -167,7 +163,7 @@ public class GuiDelegate implements Observer {
         }));
         popup.add(new JMenuItem(new AbstractAction("Blue") {
             public void actionPerformed(ActionEvent e) {
-                storeUndoSetting();
+                storeUndoSetting(true);
 
                 model.setColour(Color.BLUE);
 
@@ -176,7 +172,7 @@ public class GuiDelegate implements Observer {
         }));
         popup.add(new JMenuItem(new AbstractAction("Gray") {
             public void actionPerformed(ActionEvent e) {
-                storeUndoSetting();
+                storeUndoSetting(true);
 
                 model.setColour(Color.GRAY);
 
@@ -195,9 +191,12 @@ public class GuiDelegate implements Observer {
     /**
      * store the most recently used parameter settings for undo operation.
      */
-    private void storeUndoSetting() {
+    private void storeUndoSetting(boolean clearRedoStack) {
         undoStack.push(new ModelSetting(model));
-        redoStack.clear();
+
+        if (clearRedoStack) {
+            redoStack.clear();
+        }
     }
 
     /**
@@ -227,7 +226,7 @@ public class GuiDelegate implements Observer {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     try {
-                        storeUndoSetting();
+                        storeUndoSetting(true);
 
                         FileInputStream fi = new FileInputStream(file);
                         ObjectInputStream oi = new ObjectInputStream(fi);
@@ -311,7 +310,6 @@ public class GuiDelegate implements Observer {
     public void update(Observable o, Object arg) {
 
         // Tell the SwingUtilities thread to update the GUI components.
-        // This is safer than executing outputField.setText(model.getText())
         // in the caller's thread
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {

@@ -28,7 +28,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         undoStack = model.getUndoStack();
         redoStack = model.getRedoStack();
 
-        setting_frames = model.getSetting_frames();
+        setting_frames = model.getSettingFrames();
 
         super.addMouseListener(this);
         super.addMouseMotionListener(this);
@@ -52,7 +52,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
      * @param g
      */
     private void draw_image(Graphics g) {
-        int[][] madelBrotData = model.getMandelbrotData();
+        int[][] madelBrotData = model.getMandelData();
 
         for (int i = 0; i < madelBrotData.length; i++) {
             for (int j = 0; j < madelBrotData[i].length; j++) {
@@ -65,14 +65,19 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
                     if (model.getColour().equals(Color.RED)) {
                         g.setColor(new Color(value, 0, 0));
+
                     } else if (model.getColour().equals(Color.GREEN)) {
                         g.setColor(new Color(0, value, 0));
+
                     } else if (model.getColour().equals(Color.BLUE)) {
                         g.setColor(new Color(0, 0, value));
+
                     } else if (model.getColour().equals(Color.GRAY)) {
                         g.setColor(new Color(value, value, value));
+
                     } else {
                         g.setColor(model.getColour());
+
                     }
                 }
 

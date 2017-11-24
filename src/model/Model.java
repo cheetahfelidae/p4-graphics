@@ -9,7 +9,7 @@ public class Model extends Observable {
     private static final int DEFAULT_X_RESOLUTION = 800;
     private static final int DEFAULT_Y_RESOLUTION = 800;
 
-    private int[][] mandelbrotData;
+    private int[][] mandelData;
     private MandelbrotCalculator mandelCal;
     private int xRes, yRes, maxIterations;
     private double minReal, maxReal, minImg, maxImg, radiusSquared;
@@ -17,13 +17,13 @@ public class Model extends Observable {
 
     private Stack<ModelSetting> undoStack;
     private Stack<ModelSetting> redoStack;
-    private ArrayDeque<ModelSetting> setting_frames;
+    private ArrayDeque<ModelSetting> settingFrames;
 
     public Model() {
         mandelCal = new MandelbrotCalculator();
         undoStack = new Stack<>();
         redoStack = new Stack<>();
-        setting_frames = new ArrayDeque<>();
+        settingFrames = new ArrayDeque<>();
 
         reset();
     }
@@ -40,7 +40,7 @@ public class Model extends Observable {
         this.radiusSquared = modelSetting.getRadiusSquared();
         this.colour = modelSetting.getColour();
 
-        this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
+        this.mandelData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
                 maxReal,
@@ -55,7 +55,7 @@ public class Model extends Observable {
 
     public void update() {
 
-        this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
+        this.mandelData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
                 maxReal,
@@ -84,9 +84,9 @@ public class Model extends Observable {
 
         undoStack.clear();
         redoStack.clear();
-        setting_frames.clear();
+        settingFrames.clear();
 
-        this.mandelbrotData = mandelCal.calcMandelbrotSet(xRes,
+        this.mandelData = mandelCal.calcMandelbrotSet(xRes,
                 yRes,
                 minReal,
                 maxReal,
@@ -99,8 +99,8 @@ public class Model extends Observable {
         notifyObservers();
     }
 
-    public void setMandelbrotData(int[][] mandelbrotData) {
-        this.mandelbrotData = mandelbrotData;
+    public void setMandelData(int[][] mandelData) {
+        this.mandelData = mandelData;
     }
 
     public void setMandelCal(MandelbrotCalculator mandelCal) {
@@ -143,8 +143,8 @@ public class Model extends Observable {
         this.colour = colour;
     }
 
-    public int[][] getMandelbrotData() {
-        return this.mandelbrotData;
+    public int[][] getMandelData() {
+        return this.mandelData;
     }
 
     public int getXResolution() {
@@ -191,7 +191,7 @@ public class Model extends Observable {
         return redoStack;
     }
 
-    public ArrayDeque<ModelSetting> getSetting_frames() {
-        return setting_frames;
+    public ArrayDeque<ModelSetting> getSettingFrames() {
+        return settingFrames;
     }
 }
