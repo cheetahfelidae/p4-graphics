@@ -3,8 +3,7 @@ package model;
 import guiDelegate.ModelSetting;
 
 import java.awt.*;
-import java.util.Observable;
-import java.util.Stack;
+import java.util.*;
 
 public class Model extends Observable {
     private static final int DEFAULT_X_RESOLUTION = 800;
@@ -18,6 +17,7 @@ public class Model extends Observable {
 
     private Stack<ModelSetting> undoStack;
     private Stack<ModelSetting> redoStack;
+    private ArrayDeque<ModelSetting> setting_frames;
 
     public Model() {
         mandelCal = new MandelbrotCalculator();
@@ -34,6 +34,7 @@ public class Model extends Observable {
 
         undoStack = new Stack<>();
         redoStack = new Stack<>();
+        setting_frames = new ArrayDeque<>();
 
         this.mandelbrotData = mandelCal.calcMandelbrotSet(
                 xRes,
@@ -201,5 +202,9 @@ public class Model extends Observable {
 
     public Stack<ModelSetting> getRedoStack() {
         return redoStack;
+    }
+
+    public ArrayDeque<ModelSetting> getSetting_frames() {
+        return setting_frames;
     }
 }

@@ -3,9 +3,7 @@ package guiDelegate;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Stack;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -41,6 +39,7 @@ public class GuiDelegate implements Observer {
 
     private Stack<ModelSetting> undoStack;
     private Stack<ModelSetting> redoStack;
+    private ArrayDeque<ModelSetting> setting_frames;
 
     /**
      * Instantiate a new GuiDelegate object
@@ -57,8 +56,11 @@ public class GuiDelegate implements Observer {
         outputField = new JTextArea(TEXT_WIDTH, TEXT_HEIGHT);
         outputField.setEditable(false);
         setupComponents();
+
         undoStack = model.getUndoStack();
         redoStack = model.getRedoStack();
+
+        setting_frames = model.getSetting_frames();
 
         // add the delegate UI component as an observer of the model
         // so as to detect changes in the model and update the GUI view accordingly
@@ -302,6 +304,10 @@ public class GuiDelegate implements Observer {
                 }
 
                 panel.repaint();
+
+                if (setting_frames.size() > 0) {
+                    model.update(setting_frames.remove());
+                }
             }
         });
     }

@@ -28,6 +28,23 @@ public class ModelSetting implements Serializable {
         this.colour = model.getColour();
     }
 
+    /**
+     * Used to clone the class
+     *
+     * @param setting
+     */
+    ModelSetting(ModelSetting setting) {
+        this.xRes = setting.getXResolution();
+        this.yRes = setting.getYResolution();
+        this.minReal = setting.getMinReal();
+        this.maxReal = setting.getMaxReal();
+        this.minImg = setting.getMinImg();
+        this.maxImg = setting.getMaxImg();
+        this.maxIterations = setting.getMaxIterations();
+        this.radiusSquared = setting.getRadiusSquared();
+        this.colour = setting.getColour();
+    }
+
     public void setXResolution(int xResolution) {
         this.xRes = xResolution;
     }
