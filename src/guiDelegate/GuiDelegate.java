@@ -95,7 +95,7 @@ public class GuiDelegate implements Observer {
             }
         });
 
-        JLabel label = new JLabel("Change Iterations: ");
+        JLabel label = new JLabel("Change Max Iterations: ");
 
         JButton add_button = new JButton("Update");
         add_button.addActionListener(new ActionListener() {
